@@ -82,18 +82,40 @@ function From({ onAddItems }) {
 }
 //
 function PackingList({ items, onDeleteItems, onUpdateItems }) {
+  const [sortBy, setSortBy] = useState("input");
+
+  let sortedItems;
+  if (sortBy === "input") sortedItems = items;
+  else if (sortBy === "description")
+    sortedItems = items
+      .slice()
+      .sort((a, b) => a.description.localeCompare(b.description));
+  else if (sortBy === "packed")
+    sortedItems = items.sort((a, b) => Number(a.packed) - Number(b.packed));
+
   return (
     <div className="list">
       <ul>
-        {items.map((item) => (
-          <Item
-            item={item}
-            onDeleteItems={onDeleteItems}
-            onUpdateItems={onUpdateItems}
-            key={item.id}
-          />
-        ))}
+        {sortedItems
+          .map((item) => (
+            <Item
+              item={item}
+              onDeleteItems={onDeleteItems}
+              onUpdateItems={onUpdateItems}
+              key={item.id}
+            />
+          ))
+          .sort((a, b) => a[`${sortBy}`] - b[`${sortBy}`])}
       </ul>
+      <select
+        value={sortBy}
+        className="actions"
+        onChange={(e) => setSortBy(e.target.value)}
+      >
+        <option value="input">Sorted by input order</option>
+        <option value="description">Sorted by description </option>
+        <option value="packed">Sorted by packed status</option>
+      </select>
     </div>
   );
 }
