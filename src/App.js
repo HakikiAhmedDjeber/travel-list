@@ -19,6 +19,12 @@ export default function App() {
     );
   }
 
+  function handleClearItems() {
+    const confirm = window.confirm(
+      "Are you sure you want to delete all items ?"
+    );
+    if (confirm) setItems([]);
+  }
   return (
     <div className="app">
       <Logo />
@@ -27,6 +33,7 @@ export default function App() {
         items={items}
         onDeleteItems={handleDeleteItems}
         onUpdateItems={handleToogleItems}
+        onClearItems={handleClearItems}
       />
       <Stats items={items} />
     </div>
@@ -81,7 +88,7 @@ function From({ onAddItems }) {
   );
 }
 //
-function PackingList({ items, onDeleteItems, onUpdateItems }) {
+function PackingList({ items, onDeleteItems, onUpdateItems, onClearItems }) {
   const [sortBy, setSortBy] = useState("input");
 
   let sortedItems;
@@ -91,7 +98,9 @@ function PackingList({ items, onDeleteItems, onUpdateItems }) {
       .slice()
       .sort((a, b) => a.description.localeCompare(b.description));
   else if (sortBy === "packed")
-    sortedItems = items.sort((a, b) => Number(a.packed) - Number(b.packed));
+    sortedItems = items
+      .slice()
+      .sort((a, b) => Number(a.packed) - Number(b.packed));
 
   return (
     <div className="list">
@@ -107,15 +116,14 @@ function PackingList({ items, onDeleteItems, onUpdateItems }) {
           ))
           .sort((a, b) => a[`${sortBy}`] - b[`${sortBy}`])}
       </ul>
-      <select
-        value={sortBy}
-        className="actions"
-        onChange={(e) => setSortBy(e.target.value)}
-      >
-        <option value="input">Sorted by input order</option>
-        <option value="description">Sorted by description </option>
-        <option value="packed">Sorted by packed status</option>
-      </select>
+      <div className="actions">
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <option value="input">Sorted by input order</option>
+          <option value="description">Sorted by description </option>
+          <option value="packed">Sorted by packed status</option>
+        </select>
+        <button onClick={onClearItems}>Clear list</button>
+      </div>
     </div>
   );
 }
