@@ -1,12 +1,7 @@
 import { useState } from "react";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: true },
-];
-
 export default function App() {
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState([]);
 
   function handleAddItems(item) {
     setItems((items) => [...items, item]);
@@ -16,11 +11,23 @@ export default function App() {
     setItems((items) => items.filter((item) => item.id !== id));
   }
 
+  function handleToogleItems(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
+
   return (
     <div className="app">
       <Logo />
       <From onAddItems={handleAddItems} />
-      <PackingList items={items} onDeleteItems={handleDeleteItems} />
+      <PackingList
+        items={items}
+        onDeleteItems={handleDeleteItems}
+        onUpdateItems={handleToogleItems}
+      />
       <Stats />
     </div>
   );
@@ -74,25 +81,38 @@ function From({ onAddItems }) {
   );
 }
 //
-function PackingList({ items, onDeleteItems }) {
+function PackingList({ items, onDeleteItems, onUpdateItems }) {
   return (
     <div className="list">
       <ul>
         {items.map((item) => (
-          <Item item={item} onDeleteItems={onDeleteItems} key={item.id} />
+          <Item
+            item={item}
+            onDeleteItems={onDeleteItems}
+            onUpdateItems={onUpdateItems}
+            key={item.id}
+          />
         ))}
       </ul>
     </div>
   );
 }
 //
-function Item({ item, onDeleteItems }) {
+function Item({ item, onDeleteItems, onUpdateItems }) {
   return (
     <li>
-      {/* {<input type="checkbox" checked={item.packed} />} */}
-      <span style={item.packed ? { textDecoration: "line-through" } : {}}>
+      <input
+        id={item.id}
+        type="checkbox"
+        value={item.packed}
+        onChange={() => onUpdateItems(item.id)}
+      />
+      <label
+        htmlFor={item.id}
+        style={item.packed ? { textDecoration: "line-through" } : {}}
+      >
         {item.quantity} {item.description}
-      </span>
+      </label>
       <button onClick={() => onDeleteItems(item.id)}>❌</button>
     </li>
   );
